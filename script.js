@@ -3,7 +3,8 @@ const nextBtn = document.querySelector('.next-btn');
 const prevBtn = document.querySelector('.prev-btn');
 const month = document.querySelector('.month');
 const todayBtn = document.querySelector('.today-btn');
-
+const popup = document.querySelector('.popup');
+const popupContent = document.querySelector('.popup-content');
 const months = [
   'January',
   'February',
@@ -50,14 +51,14 @@ function renderCalendar() {
       currentMonth === new Date().getMonth() &&
       currentYear === new Date().getFullYear()
     ) {
-      daysHTML += `<div class="day today">${i}</div>`;
+      daysHTML += `<div class="day today" data-day="${i}">${i}</div>`;
     } else {
-      daysHTML += `<div class="day">${i}</div>`;
+      daysHTML += `<div class="day" data-day="${i}">${i}</div>`;
     }
   }
 
   for (let j = 1; j <= nextDays; j++) {
-    daysHTML += `<div class="day next">${j}</div>`;
+    daysHTML += `<div class="day next" data-day="${j}">${j}</div>`;
   }
 
   hideTodayBtn();
@@ -67,16 +68,31 @@ function renderCalendar() {
   const allDays = document.querySelectorAll('.day');
   allDays.forEach((day) => {
     day.addEventListener('click', () => {
-      // Remove 'today' class from the previously selected day
       const prevToday = document.querySelector('.day.today');
       if (prevToday) {
         prevToday.classList.remove('today');
       }
 
-      // Add 'today' class to the clicked day
       day.classList.add('today');
+      console.log(day.dataset.day);
+      // Show popup with details
+      showPopup(day.dataset.day);
     });
   });
+}
+
+function showPopup(day) {
+  popup.style.opacity = 1;
+  popup.style.transform = 'translateY(0)';
+
+  // Add a timeout to ensure styles are applied before adding the class
+  setTimeout(() => {
+    popup.classList.add('animate');
+  }, 0);
+}
+
+function hidePopup() {
+  popup.classList.remove('animate');
 }
 
 renderCalendar();
@@ -88,6 +104,7 @@ nextBtn.addEventListener('click', () => {
     currentYear++;
   }
   renderCalendar();
+  hidePopup();
 });
 
 prevBtn.addEventListener('click', () => {
@@ -97,12 +114,21 @@ prevBtn.addEventListener('click', () => {
     currentYear--;
   }
   renderCalendar();
+  hidePopup();
 });
 
 todayBtn.addEventListener('click', () => {
   currentMonth = date.getMonth();
   currentYear = date.getFullYear();
   renderCalendar();
+  hidePopup();
+});
+
+// Close popup when clicking outside
+document.addEventListener('click', (e) => {
+  if (!popup.contains(e.target) && !todayBtn.contains(e.target)) {
+    hidePopup();
+  }
 });
 
 function hideTodayBtn() {
